@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>SCP-Архив: Мобильная Группа Саха-6</title>
+   <style>
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+       :root {
+           --bg-color: #0b0f12;
+           --text-color: #00ff41;
+           --text-dim: #008f11;
+           --warning: #ff0000;
+           --warning-dim: #8b0000;
+           --safe: #00ff41;
+           --euclid: #ffff00;
+           --keter: #ff0000;
+           --thaumiel: #00ffff;
+           --apollyon: #ff00ff;
+           --scan-line: rgba(0, 255, 65, 0.03);
+       }
+
+       @keyframes scan {
+           0% { transform: translateY(-100%); }
+           100% { transform: translateY(100vh); }
+       }
+
+       @keyframes blink {
+           0%, 50% { opacity: 1; }
+           51%, 100% { opacity: 0; }
+       }
+
+       @keyframes glitch {
+           0% { transform: translate(0); }
+           20% { transform: translate(-2px, 2px); }
+           40% { transform: translate(-2px, -2px); }
+           60% { transform: translate(2px, 2px); }
+           80% { transform: translate(2px, -2px); }
+           100% { transform: translate(0); }
+       }
+
+       @keyframes flicker {
+           0% { opacity: 0.97; }
+           5% { opacity: 0.95; }
+           10% { opacity: 0.9; }
+           15% { opacity: 0.95; }
+           20% { opacity: 0.99; }
+           25% { opacity: 0.95; }
+           30% { opacity: 0.9; }
+           35% { opacity: 0.96; }
+           40% { opacity: 0.98; }
+           45% { opacity: 0.95; }
+           50% { opacity: 0.99; }
+           55% { opacity: 0.93; }
+           60% { opacity: 0.9; }
+           65% { opacity: 0.96; }
+           70% { opacity: 1; }
+           75% { opacity: 0.97; }
+           80% { opacity: 0.95; }
+           85% { opacity: 0.92; }
+           90% { opacity: 0.96; }
+           95% { opacity: 0.99; }
+           100% { opacity: 0.94; }
+       }
+
+       @keyframes pulse-border {
+           0%, 100% { box-shadow: 0 0 5px currentColor; }
+           50% { box-shadow: 0 0 20px currentColor; }
+       }
+
+       body {
+           background-color: var(--bg-color);
+           color: var(--text-color);
+           font-family: 'Courier New', Courier, monospace;
+           min-height: 100vh;
+           overflow-x: hidden;
+           position: relative;
+       }
+
+       body::before {
+           content: '';
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: repeating-linear-gradient(
+               0deg,
+               var(--scan-line),
+               var(--scan-line) 1px,
+               transparent 1px,
+               transparent 2px
+           );
+           pointer-events: none;
+           z-index: 1000;
+       }
+
+       body::after {
+           content: '';
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100px;
+           background: linear-gradient(
+               180deg,
+               transparent,
+               rgba(0, 255, 65, 0.1),
+               transparent
+           );
+           animation: scan 8s linear infinite;
+           pointer-events: none;
+           z-index: 999;
+       }
+
+       .container {
+           max-width: 1200px;
+           margin: 0 auto;
+           padding: 20px;
+           position: relative;
+           z-index: 1;
+           animation: flicker 0.15s infinite;
+       }
+
+       header {
+           text-align: center;
+           padding: 40px 20px;
+           border-bottom: 2px solid var(--text-dim);
+           margin-bottom: 30px;
+           position: relative;
+       }
+
+       header::after {
+           content: '';
+           position: absolute;
+           bottom: -2px;
+           left: 0;
+           width: 100%;
+           height: 2px;
+           background: linear-gradient(90deg, transparent, var(--text-color), transparent);
+           animation: scan 3s linear infinite;
+       }
+
+       h1 {
+           font-size: 2.5rem;
+           letter-spacing: 8px;
+           text-transform: uppercase;
+           margin-bottom: 10px;
+           text-shadow: 0 0 10px var(--text-color);
+       }
+
+       .subtitle {
+           color: var(--warning);
+           font-size: 1.2rem;
+           letter-spacing: 4px;
+           animation: blink 2s infinite;
+       }
+
+       .controls {
+           display: flex;
+           flex-wrap: wrap;
+           gap: 15px;
+           margin-bottom: 30px;
+           padding: 20px;
+           background: rgba(0, 255, 65, 0.05);
+           border: 1px solid var(--text-dim);
+       }
+
+       input[type="text"] {
+           flex: 1;
+           min-width: 200px;
+           padding: 12px;
+           background: var(--bg-color);
+           border: 1px solid var(--text-dim);
+           color: var(--text-color);
+           font-family: inherit;
+           font-size: 1rem;
+           outline: none;
+           transition: all 0.3s;
+       }
+
+       input[type="text"]:focus {
+           border-color: var(--text-color);
+           box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+       }
+
+       .filter-group {
+           display: flex;
+           gap: 10px;
+           flex-wrap: wrap;
+       }
+
+       button {
+           padding: 12px 20px;
+           background: transparent;
+           border: 1px solid var(--text-dim);
+           color: var(--text-color);
+           font-family: inherit;
+           cursor: pointer;
+           transition: all 0.3s;
+           text-transform: uppercase;
+           letter-spacing: 2px;
+           font-size: 0.9rem;
+       }
+
+       button:hover {
+           background: rgba(0, 255, 65, 0.1);
+           border-color: var(--text-color);
+           text-shadow: 0 0 5px var(--text-color);
+       }
+
+       button.active {
+           background: var(--text-color);
+           color: var(--bg-color);
+       }
+
+       button.random {
+           border-color: var(--warning);
+           color: var(--warning);
+       }
+
+       button.random:hover {
+           background: rgba(255, 0, 0, 0.1);
+           box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+       }
+
+       .grid {
+           display: grid;
+           grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+           gap: 25px;
+           margin-bottom: 120px;
+       }
+
+       .card {
+           background: rgba(0, 20, 0, 0.3);
+           border: 2px solid;
+           padding: 0;
+           cursor: pointer;
+           transition: all 0.3s;
+           position: relative;
+           overflow: hidden;
+           display: flex;
+           flex-direction: column;
+       }
+
+       .card::before {
+           content: '';
+           position: absolute;
+           top: 0;
+           left: -100%;
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+           transition: left 0.5s;
+           z-index: 10;
+       }
+
+       .card:hover::before {
+           left: 100%;
+       }
+
+       .card:hover {
+           transform: translateY(-2px);
+           box-shadow: 0 5px 20px rgba(0, 255, 65, 0.2);
+       }
+
+       .card.safe { border-color: var(--safe); animation: pulse-border 3s infinite; }
+       .card.euclid { border-color: var(--euclid); animation: pulse-border 3s infinite; }
+       .card.keter { border-color: var(--keter); animation: pulse-border 3s infinite; }
+       .card.thaumiel { border-color: var(--thaumiel); animation: pulse-border 3s infinite; }
+       .card.apollyon { border-color: var(--apollyon); animation: pulse-border 3s infinite; }
+
+       .card-image {
+           width: 100%;
+           height: 200px;
+           object-fit: cover;
+           filter: grayscale(100%) contrast(120%) brightness(0.8);
+           border-bottom: 2px solid;
+           transition: all 0.3s;
+       }
+
+       .card:hover .card-image {
+           filter: grayscale(0%) contrast(100%) brightness(1);
+       }
+
+       .card.safe .card-image { border-color: var(--safe); }
+       .card.euclid .card-image { border-color: var(--euclid); }
+       .card.keter .card-image { border-color: var(--keter); }
+       .card.thaumiel .card-image { border-color: var(--thaumiel); }
+       .card.apollyon .card-image { border-color: var(--apollyon); }
+
+       .card-content {
+           padding: 20px;
+       }
+
+       .card-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 15px;
+           padding-bottom: 10px;
+           border-bottom: 1px solid currentColor;
+       }
+
+       .scp-id {
+           font-size: 1.3rem;
+           font-weight: bold;
+           letter-spacing: 2px;
+       }
+
+       .class-badge {
+           padding: 5px 15px;
+           font-size: 0.8rem;
+           letter-spacing: 2px;
+           text-transform: uppercase;
+           border: 1px solid currentColor;
+       }
+
+       .card.safe .class-badge { color: var(--safe); }
+       .card.euclid .class-badge { color: var(--euclid); }
+       .card.keter .class-badge { color: var(--keter); }
+       .card.thaumiel .class-badge { color: var(--thaumiel); }
+       .card.apollyon .class-badge { color: var(--apollyon); }
+
+       .preview {
+           color: var(--text-dim);
+           font-size: 0.9rem;
+           line-height: 1.6;
+       }
+
+       .details {
+           max-height: 0;
+           overflow: hidden;
+           transition: max-height 0.5s ease-out;
+           margin-top: 15px;
+           padding-top: 15px;
+           border-top: 1px solid var(--text-dim);
+       }
+
+       .details.open {
+           max-height: 800px;
+       }
+
+       .section {
+           margin-bottom: 15px;
+       }
+
+       .section-title {
+           color: var(--text-color);
+           font-size: 0.8rem;
+           letter-spacing: 3px;
+           text-transform: uppercase;
+           margin-bottom: 8px;
+           opacity: 0.8;
+       }
+
+       .section-content {
+           color: var(--text-dim);
+           line-height: 1.6;
+           padding-left: 15px;
+           border-left: 2px solid var(--text-dim);
+       }
+
+       .console {
+           position: fixed;
+           bottom: 0;
+           left: 0;
+           width: 100%;
+           height: 120px;
+           background: rgba(0, 0, 0, 0.95);
+           border-top: 2px solid var(--text-dim);
+           padding: 15px;
+           font-size: 0.85rem;
+           overflow-y: auto;
+           z-index: 100;
+       }
+
+       .console-line {
+           margin-bottom: 5px;
+           opacity: 0;
+           animation: fadeIn 0.3s forwards;
+       }
+
+       @keyframes fadeIn {
+           to { opacity: 1; }
+       }
+
+       .timestamp {
+           color: var(--text-dim);
+           margin-right: 10px;
+       }
+
+       .status-granted { color: var(--safe); }
+       .status-denied { color: var(--warning); }
+       .status-warning { color: var(--euclid); }
+
+       .cursor {
+           display: inline-block;
+           width: 10px;
+           height: 18px;
+           background: var(--text-color);
+           animation: blink 1s infinite;
+           margin-left: 5px;
+           vertical-align: middle;
+       }
+
+       .modal {
+           display: none;
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: rgba(0, 0, 0, 0.95);
+           z-index: 2000;
+           justify-content: center;
+           align-items: center;
+           padding: 20px;
+       }
+
+       .modal.active {
+           display: flex;
+           animation: glitch 0.3s;
+       }
+
+       .modal-content {
+           max-width: 700px;
+           width: 100%;
+           border: 2px solid var(--text-color);
+           background: var(--bg-color);
+           padding: 0;
+           position: relative;
+           box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+           max-height: 90vh;
+           overflow-y: auto;
+       }
+
+       .modal-image {
+           width: 100%;
+           height: 300px;
+           object-fit: cover;
+           filter: grayscale(100%) contrast(120%);
+           border-bottom: 2px solid var(--text-color);
+       }
+
+       .modal-body {
+           padding: 30px;
+       }
+
+       .modal-close {
+           position: absolute;
+           top: 10px;
+           right: 15px;
+           font-size: 2rem;
+           cursor: pointer;
+           color: var(--warning);
+           text-shadow: 0 0 10px rgba(0,0,0,0.8);
+           z-index: 10;
+       }
+
+       .modal-close:hover {
+           text-shadow: 0 0 20px var(--warning);
+       }
+
+       @media (max-width: 768px) {
+           h1 { font-size: 1.5rem; letter-spacing: 4px; }
+           .subtitle { font-size: 1rem; }
+           .grid { grid-template-columns: 1fr; }
+           .controls { flex-direction: column; }
+           .filter-group { justify-content: center; }
+           .console { height: 100px; font-size: 0.75rem; }
+           .card-image { height: 150px; }
+           .modal-image { height: 200px; }
+       }
+   </style>
+</head>
+<body>
+   <div class="container" id="mainContainer">
+       <header>
+           <h1>SCP-Архив: Мобильная Группа Саха-6</h1>
+           <div class="subtitle">PUBLIC ACCESS GRANTED</div>
+       </header>
+
+       <div class="controls">
+           <input type="text" id="search" placeholder="SEARCH DATABASE...">
+           <div class="filter-group">
+               <button class="filter-btn active" data-filter="all">ALL</button>
+               <button class="filter-btn" data-filter="safe">SAFE</button>
+               <button class="filter-btn" data-filter="euclid">EUCLID</button>
+               <button class="filter-btn" data-filter="keter">KETER</button>
+               <button class="filter-btn" data-filter="thaumiel">THAUMIEL</button>
+               <button class="filter-btn" data-filter="apollyon">APOLLYON</button>
+           </div>
+           <button class="random" onclick="randomSCP()">RANDOM SCP</button>
+       </div>
+
+       <div class="grid" id="grid"></div>
+   </div>
+
+   <div class="console" id="console">
+       <div class="console-line"><span class="timestamp">[00:00:00]</span>SYSTEM INITIALIZED...</div>
+   </div>
+
+   <div class="modal" id="modal">
+       <div class="modal-content" id="modalContent">
+           <span class="modal-close" onclick="closeModal()">×</span>
+       </div>
+   </div>
+
+   <script>
+       const scps = [
+           {
+               id: 'SCP-VADIM-01',
+               name: '«Хроностазис»',
+               class: 'euclid',
+               origin: 'Родился в Якутск',
+               description: 'Объект демонстрирует аномально замедленное восприятие времени. Любые действия «собраться и выйти» растягиваются в 3–6 раз. Максимально зафиксированное опоздание: «не пришёл вообще».',
+               abilities: [
+                   '«Санузловая стазис-зона»: способен оставаться в туалетном помещении на длительный срок без признаков усталости или дискомфорта',
+                   'Ритуалы с продолговатыми предметами (ручки, палочки, зубочистки) — предполагаемый антистрессовый механизм',
+                   'Любит Hearts of Iron IV; цифровое управление альтернативной историей усиливает эффект хроностазиса',
+                   'Эмоциональная привязанность к Бугульма повышает устойчивость аномальных эффектов'
+               ],
+               behavior: 'Долгое сидение на месте, замедление всех процессов вокруг. Игнорирование внешних раздражителей при погружении в стратегические игры.',
+               note: '«Если сказал "5 минут", приготовься на несколько часов»',
+               image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80'
+           },
+           {
+               id: 'SCP-ALEX-02',
+               name: '«Летописец Старого города»',
+               class: 'safe',
+               origin: 'Родом из тайги',
+               description: 'Обладает фотографической памятью на исторические события. Может пересказать ход любой войны или революции без подготовки.',
+               abilities: [
+                   '«Философский эффект» — все собеседники вовлекаются в глубокие экзистенциальные дискуссии',
+                   'Совместное пребывание с SCP-AITAL-04 в Tzaki Bar формирует «зону бесед» — люди задерживаются на 3–5 часов',
+                   'Любит светлое пиво, которое усиливает его аналитические способности',
+                   'Сохраняет дистанцию к романтическим контактам после прошлых эмоциональных травм'
+               ],
+               behavior: 'Постоянное изложение исторических фактов в неожиданных контекстах. Превращение любого диалога в лекцию.',
+               note: '«Каждый вопрос превращается в лекцию. Даже "где туалет?"»',
+               image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=800&q=80'
+           },
+           {
+               id: 'SCP-NIKOLAI-03',
+               name: '«Инвентаризатор»',
+               class: 'keter',
+               origin: 'Уроженец Якутск',
+               description: 'Экстремально педантичен. Любое помещение превращается в идеально организованную систему. Обладает цифровым стазис-влиянием.',
+               abilities: [
+                   '«Цифровой стазис-зона»: люди рядом теряют счёт времени, наблюдая за его ПК-активностью',
+                   'Металлическая щипка для мелких предметов — часть ритуала точной сортировки и концентрации',
+                   'Умение скрывать интерес к аниме, одновременно обладая энциклопедическим знанием',
+                   'Любит Counter-Strike 2, повышает концентрацию и реакцию',
+                   'Любитель Быырпах, повышающий когнитивную эффективность'
+               ],
+               behavior: 'Почти полностью изолирован от внешнего мира; социальные контакты минимальны. Постоянная инвентаризация пространства.',
+               note: '«Если он навёл порядок — ничего не трогай, это система»',
+               image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80'
+           },
+           {
+               id: 'SCP-AITAL-04',
+               name: '«Катализатор»',
+               class: 'thaumiel',
+               origin: 'Родился в Якутск; имеет смешанные корни',
+               description: 'Социальная аномалия положительного типа. Усиливает доверие и мораль, снижает конфликты между субъектами.',
+               abilities: [
+                   'Ускоряет установление контактов между незнакомыми субъектами',
+                   'Социальный бафф: продуктивность групп возрастает на 30–40%',
+                   'Любит вино и сидр, что усиливает «социальный эффект»',
+                   'Часто наблюдается в Tzaki Bar как центр притяжения'
+               ],
+               behavior: 'Автоматическое сглаживание социальных трений. Создание комфортной атмосферы в любой группе.',
+               note: '«Если стало неловко и тихо — позовите Айтала»',
+               image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80'
+           },
+           {
+               id: 'SCP-NYURGUN-05',
+               name: '«Авангард»',
+               class: 'euclid',
+               origin: 'Родился в Амга; смешанные корни',
+               description: 'Физическая выносливость выше нормы. Обладает интуитивной тактической смекалкой и предпочитает велосипед.',
+               abilities: [
+                   'Предпочитает велосипед как транспорт, преодолевая большие расстояния',
+                   'Играет в Escape from Tarkov, демонстрируя почти профессиональные навыки',
+                   'Не употребляет алкоголь',
+                   'Предпочитает здоровый и активный образ жизни'
+               ],
+               behavior: 'Постоянная физическая активность. Спокойствие в стрессовых ситуациях служит индикатором контроля.',
+               note: '«Если он спокоен — всё под контролем»',
+               image: 'https://images.unsplash.com/photo-1571333250630-f0230c320b6d?auto=format&fit=crop&w=800&q=80'
+           },
+           {
+               id: 'SCP-ICEBERG-06',
+               name: '«Демон МАО»',
+               class: 'apollyon',
+               origin: 'Место рождения: «пустота». Документы отсутствуют',
+               description: 'Регулярно появляется в МАО Бар, известен как «Демон». Обладает меметическим влиянием на социальную дистанцию.',
+               abilities: [
+                   'Меметическое влияние: люди вокруг резко сокращают социальную дистанцию и адаптируются к его присутствию',
+                   'Пьёт всё понемногу, что усиливает его способность «гармонизировать» компанию',
+                   'Энергетика объекта и харизма создают эффект «центра притяжения» для зумеров и посетителей'
+               ],
+               behavior: 'Неожиданное появление в социальных локациях. Мгновенное перестроение групповой динамики вокруг себя.',
+               note: '«Он как айсберг: виден 10%, остальное — неизвестность»',
+               image: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=800&q=80'
+           }
+       ];
+
+       let currentFilter = 'all';
+       let searchTerm = '';
+
+       function log(message, type = 'normal') {
+           const console = document.getElementById('console');
+           const timestamp = new Date().toLocaleTimeString('ru-RU', { hour12: false });
+           const line = document.createElement('div');
+           line.className = 'console-line';
+           
+           let statusClass = '';
+           if (type === 'granted') statusClass = 'status-granted';
+           if (type === 'denied') statusClass = 'status-denied';
+           if (type === 'warning') statusClass = 'status-warning';
+           
+           line.innerHTML = `<span class="timestamp">[${timestamp}]</span><span class="${statusClass}">${message}</span><span class="cursor"></span>`;
+           console.appendChild(line);
+           console.scrollTop = console.scrollHeight;
+           
+           if (console.children.length > 20) {
+               console.removeChild(console.firstChild);
+           }
+       }
+
+       function getClassColor(className) {
+           const colors = {
+               safe: '#00ff41',
+               euclid: '#ffff00',
+               keter: '#ff0000',
+               thaumiel: '#00ffff',
+               apollyon: '#ff00ff'
+           };
+           return colors[className] || '#00ff41';
+       }
+
+       function renderGrid() {
+           const grid = document.getElementById('grid');
+           grid.innerHTML = '';
+           
+           const filtered = scps.filter(scp => {
+               const matchesFilter = currentFilter === 'all' || scp.class === currentFilter;
+               const matchesSearch = scp.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                   scp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                   scp.description.toLowerCase().includes(searchTerm.toLowerCase());
+               return matchesFilter && matchesSearch;
+           });
+
+           filtered.forEach((scp, index) => {
+               const card = document.createElement('div');
+               card.className = `card ${scp.class}`;
+               card.style.animationDelay = `${index * 0.1}s`;
+               
+               const abilitiesList = scp.abilities.map(a => `<li>${a}</li>`).join('');
+               
+               card.innerHTML = `
+                   <img src="${scp.image}" alt="${scp.id}" class="card-image" loading="lazy">
+                   <div class="card-content">
+                       <div class="card-header">
+                           <div class="scp-id">${scp.id}<br><small style="font-size:0.7em;opacity:0.7;">${scp.name}</small></div>
+                           <div class="class-badge">${scp.class}</div>
+                       </div>
+                       <div class="preview">${scp.description}</div>
+                       <div class="details" id="details-${index}">
+                           <div class="section">
+                               <div class="section-title">Происхождение:</div>
+                               <div class="section-content">${scp.origin}</div>
+                           </div>
+                           <div class="section">
+                               <div class="section-title">Аномалии и способности:</div>
+                               <div class="section-content">
+                                   <ul style="list-style:none;padding-left:0;">
+                                       ${abilitiesList}
+                                   </ul>
+                               </div>
+                           </div>
+                           <div class="section">
+                               <div class="section-title">Поведение:</div>
+                               <div class="section-content">${scp.behavior}</div>
+                           </div>
+                           <div class="section">
+                               <div class="section-title">Примечание персонала:</div>
+                               <div class="section-content" style="font-style:italic;border-left-color:${getClassColor(scp.class)}">${scp.note}</div>
+                           </div>
+                       </div>
+                   </div>
+               `;
+               
+               card.onclick = () => toggleDetails(index, scp.id);
+               grid.appendChild(card);
+           });
+
+           log(`LOADED ${filtered.length} RECORDS`, 'granted');
+       }
+
+       function toggleDetails(index, id) {
+           const details = document.getElementById(`details-${index}`);
+           const isOpen = details.classList.contains('open');
+           
+           document.querySelectorAll('.details').forEach(d => d.classList.remove('open'));
+           
+           if (!isOpen) {
+               details.classList.add('open');
+               log(`FILE ACCESSED: ${id}`, 'granted');
+           }
+       }
+
+       function randomSCP() {
+           const random = scps[Math.floor(Math.random() * scps.length)];
+           const modal = document.getElementById('modal');
+           const content = document.getElementById('modalContent');
+           
+           const abilitiesList = random.abilities.map(a => `<li style="margin-bottom:8px;">${a}</li>`).join('');
+           
+           content.innerHTML = `
+               <span class="modal-close" onclick="closeModal()">×</span>
+               <img src="${random.image}" alt="${random.id}" class="modal-image">
+               <div class="modal-body">
+                   <div class="card-header" style="border-color: ${getClassColor(random.class)}; color: ${getClassColor(random.class)};margin-bottom:20px;">
+                       <div class="scp-id">${random.id}<br><small style="font-size:0.7em;">${random.name}</small></div>
+                       <div class="class-badge" style="border-color: ${getClassColor(random.class)}; color: ${getClassColor(random.class)}">${random.class}</div>
+                   </div>
+                   <div class="section">
+                       <div class="section-title">Происхождение:</div>
+                       <div class="section-content">${random.origin}</div>
+                   </div>
+                   <div class="section">
+                       <div class="section-title">Описание:</div>
+                       <div class="section-content">${random.description}</div>
+                   </div>
+                   <div class="section">
+                       <div class="section-title">Аномалии и способности:</div>
+                       <div class="section-content">
+                           <ul style="list-style:none;padding-left:0;">
+                               ${abilitiesList}
+                           </ul>
+                       </div>
+                   </div>
+                   <div class="section">
+                       <div class="section-title">Поведение:</div>
+                       <div class="section-content">${random.behavior}</div>
+                   </div>
+                   <div class="section">
+                       <div class="section-title">Примечание персонала:</div>
+                       <div class="section-content" style="font-style:italic;border-left-color:${getClassColor(random.class)}">${random.note}</div>
+                   </div>
+               </div>
+           `;
+           
+           modal.classList.add('active');
+           log(`RANDOM ACCESS: ${random.id}`, 'warning');
+       }
+
+       function closeModal() {
+           document.getElementById('modal').classList.remove('active');
+           log('CONNECTION TERMINATED');
+       }
+
+       document.querySelectorAll('.filter-btn').forEach(btn => {
+           btn.addEventListener('click', () => {
+               document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+               btn.classList.add('active');
+               currentFilter = btn.dataset.filter;
+               renderGrid();
+               log(`FILTER APPLIED: ${currentFilter.toUpperCase()}`);
+           });
+       });
+
+       document.getElementById('search').addEventListener('input', (e) => {
+           searchTerm = e.target.value;
+           renderGrid();
+           if (searchTerm) log(`SEARCH QUERY: "${searchTerm}"`);
+       });
+
+       document.addEventListener('keydown', (e) => {
+           if (e.key === 'Escape') closeModal();
+       });
+
+       window.onclick = (e) => {
+           const modal = document.getElementById('modal');
+           if (e.target === modal) closeModal();
+       };
+
+       setTimeout(() => {
+           log('SECURE CONNECTION ESTABLISHED', 'granted');
+           setTimeout(() => renderGrid(), 500);
+       }, 100);
+   </script>
+</body>
+</html>
